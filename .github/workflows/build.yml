@@ -1,4 +1,4 @@
- name: Build APK
+name: Build APK
 on:
   push:
   workflow_dispatch:
@@ -8,11 +8,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: unzip -q LowGX.zip
+      - name: Pasang logo (opsional)
+        run: |
+          if [ -f logo.png ]; then
+            command -v convert >/dev/null || command -v magick >/dev/null || sudo apt-get install -y imagemagick
+            IM=$(command -v magick || command -v convert)
+            $IM logo.png -background none -resize 288x288 -gravity center -extent 432x432 \
+              LowGX/app/src/main/res/drawable-nodpi/logo.png
+          fi
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-      - name: Terima lisensi Android SDK
+      - name: Accept Android SDK licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null || true
       - uses: gradle/actions/setup-gradle@v4
         with:
